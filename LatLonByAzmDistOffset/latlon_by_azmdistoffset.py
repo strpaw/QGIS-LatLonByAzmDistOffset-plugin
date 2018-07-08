@@ -83,7 +83,7 @@ def getTmpName():
     tmpName = tmpName[2:] # Trim two first digits of year
     return tmpName
     
-def getPolarCoordString(bearing, magVar, distance, distanceUnit, offset, offsetUnit):
+def getPolarCoordString(bearing, magVar, distance, distanceUnit, offset, offsetUnit, offsetSide):
     brng = str(bearing)
     MagOrtrue = ''
     if magVar == '' or magVar == 0:
@@ -95,14 +95,14 @@ def getPolarCoordString(bearing, magVar, distance, distanceUnit, offset, offsetU
     if distanceUnit == UOM_M:
         dUnit = ' m'
     elif distanceUnit == UOM_KM:
-        dUnit = ' km'
+        dUnit = ' KM'
     elif distanceUnit == UOM_FEET:
-        dUnit = ' feet'
+        dUnit = ' FEET'
     elif distanceUnit == UOM_SM:
         dUnit = ' SM'
     elif distanceUnit == UOM_NM:
         dUnit = ' NM'
-    polarCoordString = brng + MagOrTrue + dist + dUnit + ' ' + offset + ' ' + offsetUnit
+    polarCoordString = brng + MagOrTrue + dist + dUnit + ' ' + offset + ' ' + offsetUnit + ' ' + offsetSide
     return polarCoordString
     
 def checkRange(value, valueType):
@@ -891,7 +891,8 @@ class LatLonByAzmDistOffset:
                                                            self.offset_m, self.offsetSide)
             epLatDMS = DD2HLetterDelimitedDMS(epLatDD, V_LAT, 3)
             epLonDMS = DD2HLetterDelimitedDMS(epLonDD, V_LON, 3)
-            polarCoord = getPolarCoordString(self.bearing, self.rpMagVar, self.distance, self.distanceUnit, self.offset, self.offsetUnit)
+            polarCoord = getPolarCoordString(self.bearing, self.rpMagVar, self.distance, self.distanceUnit, self.offset, 
+                                            self.offsetUnit, self.offsetSide)
             
             layers = self.iface.legendInterface().layers()
             layerList = []   # List of layers in current (opened) QGIS project
@@ -1049,10 +1050,8 @@ class LatLonByAzmDistOffset:
                                 # Convert to DMS format with hemisphere indicator as prefix
                                 epLatDMS = DD2HLetterDelimitedDMS(epLatDD, V_LAT, 3)
                                 epLonDMS = DD2HLetterDelimitedDMS(epLonDD, V_LON, 3)
-                                #polarCoord = getPolarCoordString(row['AZM_BRNG'], self.rpMagVar, row['DIST'], row['DIST_UOM'],
-                                #                                row['OFFSET'], row['OFFSET_UOM'])
-                                polarCoord = getPolarCoordString(row['AZM_BRNG'], self.rpMagVar, str(epLatDD), row['DIST_UOM'],
-                                                               str(offs_m), row['OFFSET_UOM'])
+                                polarCoord = getPolarCoordString(row['AZM_BRNG'], self.rpMagVar, row['DIST'], row['DIST_UOM'],
+                                                                row['OFFSET'], row['OFFSET_UOM'], row['OFFSET_SIDE'])
                                 # Write result to output file
                                 writer.writerow({'P_NAME': row['P_NAME'],
                                             'AZM_BRNG': row['AZM_BRNG'],
